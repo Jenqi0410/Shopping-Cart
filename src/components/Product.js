@@ -4,65 +4,53 @@ import { addToCart, showNotify } from "../redux/actions";
 
 export default function Product({ product }) {
   const dispatch = useDispatch();
-  
-  // State để lưu giá trị số lượng
   const [quantity, setQuantity] = useState(1);
 
-  // Hàm cập nhật số lượng
   const handleQuantityChange = (e) => {
     const newQuantity = parseInt(e.target.value);
     if (newQuantity > 0) {
-      setQuantity(newQuantity);  // Cập nhật số lượng khi thay đổi
+      setQuantity(newQuantity);
     }
   };
 
-  const totalPrice = product.price * quantity;  // Cập nhật giá tiền khi thay đổi số lượng
+  const totalPrice = (product.price * quantity).toFixed(2);
 
   return (
     <div className="col-12 mb-4">
       <div className="card shadow-sm d-flex flex-row">
-        {/* Hình ảnh sản phẩm */}
-        <div className="col-4">
-          <img
-            src={product.image}
-            alt={product.name}
-            className="card-img-top"
-            style={{ height: "150px", objectFit: "cover" }}
-          />
+        {/* Tạm thời không có ảnh */}
+        <div className="col-4 d-flex align-items-center justify-content-center bg-light">
+          <span className="text-muted">No Image</span>
         </div>
 
-        {/* Nội dung sản phẩm: Tên, Mô tả và Số lượng */}
         <div className="col-8 d-flex flex-column justify-content-between p-3">
           <h5 className="card-title">{product.name}</h5>
-          <p className="card-text">{product.description}</p>
 
-          {/* Input số lượng */}
           <div className="mb-3 d-flex align-items-center">
-            <label htmlFor="quantity" className="form-label me-2">
+            <label htmlFor={`quantity-${product.id}`} className="form-label me-2">
               Số lượng
             </label>
             <input
               type="number"
-              id="quantity"
+              id={`quantity-${product.id}`}
               className="form-control w-auto"
               value={quantity}
               onChange={handleQuantityChange}
               min="1"
-              style={{ width: "60px" }}  // Điều chỉnh chiều rộng của input
+              style={{ width: "60px" }}
             />
           </div>
 
-          <h5 className="fw-bold">{totalPrice} USD</h5> {/* Hiển thị tổng giá sản phẩm */}
+          <h5 className="fw-bold">{totalPrice} USD</h5>
 
           <button
             className="btn btn-primary w-100"
             onClick={() => {
-              // Gửi sản phẩm và số lượng vào giỏ hàng
               dispatch(addToCart({ ...product, quantity }));
               dispatch(showNotify(`Đã thêm ${product.name} x${quantity} vào giỏ hàng!`));
             }}
           >
-            {product.price} USD
+            Thêm vào giỏ - {product.price} USD
           </button>
         </div>
       </div>
