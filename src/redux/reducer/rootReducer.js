@@ -1,10 +1,12 @@
 import { combineReducers } from "redux";
 import listCart from "./listCart";
-import notify from "./notify"; 
+import listProduct from "./listProduct"; 
+import notify from "./notify";
 
 const rootReducer = combineReducers({
   listCart,
-  notify,  
+  listProduct,
+  notify,
 });
 
 export default rootReducer;

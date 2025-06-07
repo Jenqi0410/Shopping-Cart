@@ -1,27 +1,34 @@
 import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { showNotify } from "../redux/actions";  
+import { showNotify, checkoutCartApi } from "../redux/actions";
 
 export default function Checkout() {
   const cartItems = useSelector((state) => state.listCart);
-  const total = cartItems.reduce(
-    (sum, item) => sum + item.price * item.quantity,
-    0
-  );
   const dispatch = useDispatch();
+
+  const total = cartItems.reduce(
+    (sum, item) => sum + item.unitPrice * item.quantity,
+    0
+  ).toFixed(2);
 
   const [name, setName] = useState("");
   const [address, setAddress] = useState("");
   const [paymentMethod, setPaymentMethod] = useState("cash");
 
-  const handleCheckout = () => {
+  const handleCheckout = async () => {
     if (!name || !address) {
-      dispatch(showNotify("Please fill in information!"));
+      dispatch(showNotify("Please fill in information!", "danger"));
       return;
     }
 
-    
-    dispatch(showNotify("Pay Success!"));
+    try {
+      await dispatch(checkoutCartApi());
+      setName("");
+      setAddress("");
+      setPaymentMethod("cash");
+    } catch (err) {
+      console.error("Checkout failed:", err);
+    }
   };
 
   return (

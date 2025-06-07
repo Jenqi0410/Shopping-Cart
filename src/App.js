@@ -1,73 +1,72 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import axios from "axios";
+import { Provider, useDispatch } from "react-redux";
+import store from "./redux/store";
 import ListProduct from "./components/ListProduct";
 import Login from "./components/Login";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Cart from "./components/Cart";
 import Checkout from "./components/Checkout";
 import Notify from "./components/Notify";
+import { fetchProducts } from "./redux/actions";
 
-export default function App() {
-  const [products, setProducts] = useState([]);
-
-  const fetchProducts = async () => {
-    const token = localStorage.getItem("access_token");
-    try {
-      const res = await axios.get("http://localhost:8080/api/v1/products", {
-        headers: { Authorization: `Bearer ${token}` },
-        withCredentials: true,
-      });
-      setProducts(res.data);
-    } catch (err) {
-      console.error("Error fetching products:", err);
-    }
-  };
+const AppContent = () => {
+  const dispatch = useDispatch();
 
   useEffect(() => {
     const token = localStorage.getItem("access_token");
-    if (token) fetchProducts();
-  }, []);
+    if (token) {
+      dispatch(fetchProducts());
+    }
+  }, [dispatch]);
 
   return (
-    <Router>
-      <Routes>
-        <Route path="/login" element={<Login onLogin={fetchProducts} />} />
-        <Route
-          path="/"
-          element={
-            <ProtectedRoute>
-              <div className="container my-4">
-                <h2 className="fw-bold mb-4">MiniProject - Shopping Cart</h2>
-                <div className="row">
-                  <div className="col-12 col-md-7">
-                    <div className="card">
-                      <div className="card-header bg-primary text-white">
-                        <strong>List Products</strong>
-                      </div>
-                      <div className="card-body">
-                        <ListProduct products={products} fetchProducts={fetchProducts} />
-                      </div>
+    <Routes>
+      <Route path="/login" element={<Login onLogin={() => dispatch(fetchProducts())} />} />
+      <Route
+        path="/"
+        element={
+          <ProtectedRoute>
+            <div className="container my-4">
+              <h2 className="fw-bold mb-4">MiniProject - Shopping Cart</h2>
+              <div className="row">
+                <div className="col-12 col-md-7">
+                  <div className="card">
+                    <div className="card-header bg-primary text-white">
+                      <strong>List Products</strong>
                     </div>
-                  </div>
-                  <div className="col-12 col-md-5">
-                    <div className="card">
-                      <div className="card-header bg-warning text-white">
-                        <strong>Your Cart</strong>
-                      </div>
-                      <div className="card-body">
-                        <Cart />
-                      </div>
+                    <div className="card-body">
+                      <ListProduct />
                     </div>
-                    <Checkout />
                   </div>
                 </div>
-                <Notify />
+                <div className="col-12 col-md-5">
+                  <div className="card">
+                    <div className="card-header bg-warning text-white">
+                      <strong>Your Cart</strong>
+                    </div>
+                    <div className="card-body">
+                      <Cart />
+                    </div>
+                  </div>
+                  <Checkout />
+                </div>
               </div>
-            </ProtectedRoute>
-          }
-        />
-      </Routes>
-    </Router>
+              <Notify />
+            </div>
+          </ProtectedRoute>
+        }
+      />
+    </Routes>
+  );
+};
+
+export default function App() {
+  return (
+    <Provider store={store}>
+      <Router>
+        <AppContent />
+      </Router>
+    </Provider>
   );
 }

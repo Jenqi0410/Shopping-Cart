@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useDispatch } from "react-redux";
-import { addToCart, showNotify } from "../redux/actions";
+import { addToCartApi, showNotify } from "../redux/actions";
 
 export default function Product({ product }) {
   const dispatch = useDispatch();
@@ -8,7 +8,7 @@ export default function Product({ product }) {
 
   const handleQuantityChange = (e) => {
     const newQuantity = parseInt(e.target.value);
-    if (newQuantity > 0) {
+    if (newQuantity > 0 && newQuantity <= product.stock) {
       setQuantity(newQuantity);
     }
   };
@@ -18,13 +18,17 @@ export default function Product({ product }) {
   return (
     <div className="col-12 mb-4">
       <div className="card shadow-sm d-flex flex-row">
-        {/* Tạm thời không có ảnh */}
         <div className="col-4 d-flex align-items-center justify-content-center bg-light">
-          <span className="text-muted">No Image</span>
+          {product.image ? (
+            <img src={product.image} alt={product.name} style={{ maxWidth: "100%", height: "auto" }} />
+          ) : (
+            <span className="text-muted">Không có ảnh</span>
+          )}
         </div>
 
         <div className="col-8 d-flex flex-column justify-content-between p-3">
           <h5 className="card-title">{product.name}</h5>
+          <p className="text-muted">Tồn kho: {product.stock}</p>
 
           <div className="mb-3 d-flex align-items-center">
             <label htmlFor={`quantity-${product.id}`} className="form-label me-2">
@@ -37,7 +41,9 @@ export default function Product({ product }) {
               value={quantity}
               onChange={handleQuantityChange}
               min="1"
-              style={{ width: "60px" }}
+              max={product.stock}
+              style={{ width: "60px", display: "inline-block" }}
+              disabled={product.stock === 0}
             />
           </div>
 
@@ -46,9 +52,10 @@ export default function Product({ product }) {
           <button
             className="btn btn-primary w-100"
             onClick={() => {
-              dispatch(addToCart({ ...product, quantity }));
+              dispatch(addToCartApi({ id: product.id, quantity }));
               dispatch(showNotify(`Đã thêm ${product.name} x${quantity} vào giỏ hàng!`));
             }}
+            disabled={product.stock === 0}
           >
             Thêm vào giỏ - {product.price} USD
           </button>

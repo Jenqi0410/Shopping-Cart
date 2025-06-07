@@ -5,4 +5,4 @@ export const SHOW_NOTIFY = "SHOW_NOTIFY";
 export const HIDE_NOTIFY = "HIDE_NOTIFY";
 export const CLEAR_CART = "CLEAR_CART";
 export const SET_CART = "SET_CART";
-
+export const SET_PRODUCTS = "SET_PRODUCTS";
